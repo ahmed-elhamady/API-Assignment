@@ -1,0 +1,691 @@
+{
+	"info": {
+		"_postman_id": "1f3b7ea7-4b5c-4bb2-999d-fbe4c6ac8a6e",
+		"name": "SpotifyAPIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37609950",
+		"_collection_link": "https://group2-5943.postman.co/workspace/ROUTE~e2b76549-a8c3-451e-8d9b-d0962466a919/collection/37609950-1f3b7ea7-4b5c-4bb2-999d-fbe4c6ac8a6e?action=share&source=collection_link&creator=37609950"
+	},
+	"item": [
+		{
+			"name": "GetAccessToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseBody = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200 ok\", function(){\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validate the response body details\", function(){\r",
+							"    pm.expect(responseBody).to.have.property('access_token');\r",
+							"    pm.expect(responseBody.access_token).to.not.be.empty;\r",
+							"    pm.expect(responseBody).to.have.property('token_type', \"Bearer\");\r",
+							"    pm.expect(responseBody).to.have.property('expires_in', 3600);\r",
+							"});\r",
+							"\r",
+							"const token = responseBody.access_token;\r",
+							"pm.environment.set('access_token', token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "928bada992244f86a237e0b6a9eb5035",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "88f23563d69f4dde86f67b6a65a85216",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://accounts.spotify.com/api/token",
+					"protocol": "https",
+					"host": [
+						"accounts",
+						"spotify",
+						"com"
+					],
+					"path": [
+						"api",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetReady",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});\r",
+							"pm.test(\"Validate response body details\", function(){\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.album_type).to.eql(\"album\");\r",
+							"    pm.expect(jsonData).to.have.property('available_markets')\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{Base_url}}/albums/4aawyAB9vmqN3uQ7FjRGTy",
+					"host": [
+						"{{Base_url}}"
+					],
+					"path": [
+						"albums",
+						"4aawyAB9vmqN3uQ7FjRGTy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetTracksByKeyword",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseBody = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200 ok\", function(){\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is below 500ms\", function(){\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});\r",
+							"pm.test(\"Validate that the tracks list not empty\", function(){\r",
+							"    pm.expect(responseBody.tracks.items.length).to.be.greaterThan(0);\r",
+							"});\r",
+							"pm.test(\"Validate the Content-Type is application/josn\", function(){\r",
+							"    pm.expect(pm.response.headers.get('Content-type')).to.include(\"application/json\")\r",
+							"})\r",
+							"\r",
+							"// pm.test(\"Validate that track names or album titles contain the 'love' keyword\", function(){\r",
+							"//     const tracks = responseBody.tracks.items;\r",
+							"//     tracks.forEach(track => {\r",
+							"//         pm.expect(track.name.toLowerCase()).to.include('Lil Wayne');\r",
+							"//         pm.expect(track.album.name.toLowerCase()).to.include('Lil Wayne');\r",
+							"//     });\r",
+							"// });\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_url}}/search?q=love&type=track",
+					"host": [
+						"{{Base_url}}"
+					],
+					"path": [
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "love"
+						},
+						{
+							"key": "type",
+							"value": "track"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetAlbumsByArtistName",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseBody = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});\r",
+							"pm.test(\"Content-Type is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"});\r",
+							"pm.test(\"Content-Type is application/json\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+							"});\r",
+							"pm.test(\"Response body includes album details (name, id, release_date)\", function () {\r",
+							"    responseBody.albums.items.forEach(function (album) {\r",
+							"        pm.expect(album).to.have.property(\"name\");\r",
+							"        pm.expect(album).to.have.property(\"id\");\r",
+							"        pm.expect(album).to.have.property(\"release_date\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validate that the respponse body not empty\", function(){\r",
+							"    pm.expect(responseBody.albums.items.length).to.be.above(0);\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_url}}/search?q=Eminem&type=album",
+					"host": [
+						"{{Base_url}}"
+					],
+					"path": [
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "Eminem"
+						},
+						{
+							"key": "type",
+							"value": "album"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetAlbumDetailsByAlbumID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"const responseBody = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});\r",
+							"pm.test(\"Content-Type is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"});\r",
+							"pm.test(\"Validate presence of: album_type, artists,tracks.items, release_date\", function(){\r",
+							"    pm.expect(responseBody).to.have.property(\"album_type\");\r",
+							"    pm.expect(responseBody).to.have.property(\"artists\");\r",
+							"    pm.expect(responseBody).to.have.property(\"tracks\");\r",
+							"    pm.expect(responseBody).to.have.property(\"release_date\");\r",
+							"});\r",
+							"pm.test(\"Validate that the artists is not empty\", function(){\r",
+							"    pm.expect(responseBody.artists.length).to.be.above(0);\r",
+							"});\r",
+							"pm.test(\"Validate that the tracks.items is not empty\", function () {\r",
+							"    pm.expect(responseBody.tracks.items.length).to.be.above(0);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_url}}/albums/{{album_id}}",
+					"host": [
+						"{{Base_url}}"
+					],
+					"path": [
+						"albums",
+						"{{album_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetTrackDetailsByTrackID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});\r",
+							"pm.test(\"Validate Content-Type is application/json\", function () {\r",
+							"    pm.response.to.have.header('Content-Type', \"application/json; charset=utf-8\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validate Validate: name, duration_ms, popularity, album\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('name');\r",
+							"    pm.expect(jsonData).to.have.property('duration_ms');\r",
+							"    pm.expect(jsonData).to.have.property('popularity')\r",
+							"    pm.expect(jsonData).to.have.property('album');\r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_url}}/tracks/{{track_id}}",
+					"host": [
+						"{{Base_url}}"
+					],
+					"path": [
+						"tracks",
+						"{{track_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetAudioFeaturesForTrack",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});\r",
+							"pm.test(\"Response includes: 'danceability', 'energy', 'tempo', 'valence', 'liveness' \", function(){\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('danceability');\r",
+							"    pm.expect(jsonData).to.have.property('energy');\r",
+							"    pm.expect(jsonData).to.have.property('tempo');\r",
+							"    pm.expect(jsonData).to.have.property('valence'); \r",
+							"    pm.expect(jsonData).to.have.property('liveness');\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_url}}/audio-features/{{track_id}}",
+					"host": [
+						"{{Base_url}}"
+					],
+					"path": [
+						"audio-features",
+						"{{track_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetAudioAnalysisForTrack",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+							"});\r",
+							"pm.test(\"Content-Type is application/json\", function () {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+							"});\r",
+							"pm.test(\"Response body Validate presence of: 'bars', 'beats', 'sections', 'segments' \", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"bars\");\r",
+							"    pm.expect(jsonData).to.have.property(\"beats\");\r",
+							"    pm.expect(jsonData).to.have.property(\"sections\");\r",
+							"    pm.expect(jsonData).to.have.property(\"segments\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_url}}/audio-analysis/{{track_id}}",
+					"host": [
+						"{{Base_url}}"
+					],
+					"path": [
+						"audio-analysis",
+						"{{track_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetBrowseCategories",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseBody = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status Code is 200 ok\", function(){\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});\r",
+							"pm.test(\"Validate the Content-type is application/json \", function(){\r",
+							"    pm.expect(pm.response.headers.get('Content-type')).to.include(\"application/json\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validate that the response body include list of categories\", function () {\r",
+							"    pm.expect(responseBody.categories.items.length).to.be.above(0);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validate categories like 'Pop', 'Workout', 'Chill' are present\", function () {\r",
+							"    let names = responseBody.categories.items.map(item => item.name);\r",
+							"    pm.expect(names).to.include('Pop');\r",
+							"    pm.expect(names).to.include('Workout');\r",
+							"    pm.expect(names).to.include('Chill');\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_url}}/browse/categories",
+					"host": [
+						"{{Base_url}}"
+					],
+					"path": [
+						"browse",
+						"categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetPlaylistsForCategory",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+							"});\r",
+							"pm.test(\"Validate Response contains playlists with: 'name', 'id', tracks.total\", function(){\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property('playlists');\r",
+							"    pm.expect(jsonData.playlists).to.be.an('array');\r",
+							"    jsonData.playlists.forEach(function(playlist){\r",
+							"        pm.expect(playlist).to.have.property('name');\r",
+							"        pm.expect(playlist).to.have.property('id');\r",
+							"        pm.expect(playlist).to.have.property('tracks');\r",
+							"        \r",
+							"    })\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_url}}/browse/categories/{{category_id}}/playlists",
+					"host": [
+						"{{Base_url}}"
+					],
+					"path": [
+						"browse",
+						"categories",
+						"{{category_id}}",
+						"playlists"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetFeaturedPlaylists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+							"});\r",
+							"pm.test(\"Content-Type is present\", function () {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"});\r",
+							"pm.test(\"Validate that the Response contains: message e.g.'Today's Top Picks' playlists.items\", function(){\r",
+							"    var responseJson = pm.response.json();\r",
+							"    pm.expect(responseJson.message).to.include(\"Today's Top Picks\");\r",
+							"    pm.expect(responseJson.playlists.items).to.have.length.above(0);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_url}}browse/featured-playlists",
+					"host": [
+						"{{Base_url}}browse"
+					],
+					"path": [
+						"featured-playlists"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetNewReleases",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"const responseBody = pm.response.json(); \r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response time is less than 500ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+							"});\r",
+							"pm.test(\"Response body contains 'albums.items[]'\", function () {\r",
+							"    pm.expect(responseBody.albums.items).to.not.be.empty;\r",
+							"    // pm.expect(responseBody.albums.items.length).to.be.above(0);\r",
+							"});\r",
+							"pm.test(\"Content-type is application/json\", function(){\r",
+							"    pm.expect(pm.response.headers.get('Content-type')).to.include(\"application/json\");\r",
+							"})\r",
+							"pm.test(\"Validate that the response body include name, release_date, total_tracks\", function(){\r",
+							"    responseBody.albums.items.forEach(function (item) {\r",
+							"        pm.expect(item).to.have.property('name');\r",
+							"        pm.expect(item).to.have.property('release_date');\r",
+							"        pm.expect(item).to.have.property('total_tracks');\r",
+							"    });\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/browse/new-releases",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"browse",
+						"new-releases"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "album_id",
+			"value": "3HNnxK7NgLXbDoxRZxNWiR",
+			"type": "string"
+		},
+		{
+			"key": "track_id",
+			"value": "11dFghVXANMlKmJXsNCbNl",
+			"type": "string"
+		},
+		{
+			"key": "category_id",
+			"value": "0JQ5DAqbMKFQ1UFISXj59F",
+			"type": "string"
+		}
+	]
+}
